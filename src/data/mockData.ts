@@ -1,10 +1,11 @@
 import { SocialPlatform, Post } from '../types';
+import { Instagram, Facebook, Twitter, Linkedin, Music } from 'lucide-react';
 
 export const socialPlatforms: SocialPlatform[] = [
   {
     id: 'instagram',
     name: 'Instagram',
-    icon: '📷',
+    icon: 'Instagram',
     color: 'from-purple-500 to-pink-500',
     maxChars: 2200,
     supportsHashtags: true,
@@ -13,7 +14,7 @@ export const socialPlatforms: SocialPlatform[] = [
   {
     id: 'facebook',
     name: 'Facebook',
-    icon: '📘',
+    icon: 'Facebook',
     color: 'from-blue-600 to-blue-700',
     maxChars: 63206,
     supportsHashtags: true,
@@ -22,7 +23,7 @@ export const socialPlatforms: SocialPlatform[] = [
   {
     id: 'twitter',
     name: 'X (Twitter)',
-    icon: '🐦',
+    icon: 'Twitter',
     color: 'from-gray-800 to-black',
     maxChars: 280,
     supportsHashtags: true,
@@ -31,7 +32,7 @@ export const socialPlatforms: SocialPlatform[] = [
   {
     id: 'linkedin',
     name: 'LinkedIn',
-    icon: '💼',
+    icon: 'Linkedin',
     color: 'from-blue-600 to-blue-800',
     maxChars: 3000,
     supportsHashtags: true,
@@ -40,7 +41,7 @@ export const socialPlatforms: SocialPlatform[] = [
   {
     id: 'tiktok',
     name: 'TikTok',
-    icon: '🎵',
+    icon: 'Music',
     color: 'from-red-500 to-pink-600',
     maxChars: 150,
     supportsHashtags: true,

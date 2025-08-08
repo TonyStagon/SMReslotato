@@ -1,4 +1,5 @@
 import React from 'react';
+import { Instagram, Facebook, Twitter, Linkedin, Music } from 'lucide-react';
 import { socialPlatforms } from '../data/mockData';
 
 interface PlatformSelectorProps {
@@ -7,6 +8,23 @@ interface PlatformSelectorProps {
 }
 
 export default function PlatformSelector({ selectedPlatforms, onPlatformChange }: PlatformSelectorProps) {
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'Instagram':
+        return Instagram;
+      case 'Facebook':
+        return Facebook;
+      case 'Twitter':
+        return Twitter;
+      case 'Linkedin':
+        return Linkedin;
+      case 'Music':
+        return Music;
+      default:
+        return Instagram;
+    }
+  };
+
   const togglePlatform = (platformId: string) => {
     if (selectedPlatforms.includes(platformId)) {
       onPlatformChange(selectedPlatforms.filter(p => p !== platformId));
@@ -21,6 +39,7 @@ export default function PlatformSelector({ selectedPlatforms, onPlatformChange }
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {socialPlatforms.map((platform) => {
           const isSelected = selectedPlatforms.includes(platform.id);
+          const IconComponent = getIconComponent(platform.icon);
           return (
             <button
               key={platform.id}
@@ -32,7 +51,7 @@ export default function PlatformSelector({ selectedPlatforms, onPlatformChange }
               }`}
             >
               <div className={`bg-gradient-to-r ${platform.color} text-white text-2xl w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-2`}>
-                {platform.icon}
+                <IconComponent className="w-6 h-6" />
               </div>
               <p className={`font-medium text-sm ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
                 {platform.name}

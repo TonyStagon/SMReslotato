@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, Edit, Trash2, Eye } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, Edit, Trash2, Eye, Instagram, Facebook, Twitter, Linkedin, Music } from 'lucide-react';
 import { Post } from '../types';
 import { socialPlatforms } from '../data/mockData';
 
@@ -11,6 +11,23 @@ interface PostHistoryProps {
 
 export default function PostHistory({ posts, onPostDelete, onPostEdit }: PostHistoryProps) {
   const [filter, setFilter] = useState<'all' | 'scheduled' | 'published' | 'failed'>('all');
+
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'Instagram':
+        return Instagram;
+      case 'Facebook':
+        return Facebook;
+      case 'Twitter':
+        return Twitter;
+      case 'Linkedin':
+        return Linkedin;
+      case 'Music':
+        return Music;
+      default:
+        return Instagram;
+    }
+  };
 
   const filteredPosts = posts.filter(post => filter === 'all' || post.status === filter);
 
@@ -106,12 +123,14 @@ export default function PostHistory({ posts, onPostDelete, onPostEdit }: PostHis
                     <span className="text-sm text-gray-600">Platforms:</span>
                     {post.platforms.map(platformId => {
                       const platform = socialPlatforms.find(p => p.id === platformId);
+                      const IconComponent = platform ? getIconComponent(platform.icon) : Instagram;
                       return platform ? (
                         <span
                           key={platformId}
                           className={`text-xs px-2 py-1 rounded-full bg-gradient-to-r ${platform.color} text-white`}
                         >
-                          {platform.icon} {platform.name}
+                          <IconComponent className="w-3 h-3 inline mr-1" />
+                          {platform.name}
                         </span>
                       ) : null;
                     })}

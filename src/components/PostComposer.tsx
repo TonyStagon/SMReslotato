@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Image, Sparkles, Hash } from 'lucide-react';
+import { Calendar, Clock, Image, Sparkles, Hash, Instagram, Facebook, Twitter, Linkedin, Music } from 'lucide-react';
 import { socialPlatforms } from '../data/mockData';
 import { Post } from '../types';
 import PlatformSelector from './PlatformSelector';
@@ -15,6 +15,23 @@ export default function PostComposer({ onPostCreate }: PostComposerProps) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
   const [scheduleType, setScheduleType] = useState<'now' | 'later'>('now');
+
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'Instagram':
+        return Instagram;
+      case 'Facebook':
+        return Facebook;
+      case 'Twitter':
+        return Twitter;
+      case 'Linkedin':
+        return Linkedin;
+      case 'Music':
+        return Music;
+      default:
+        return Instagram;
+    }
+  };
 
   const getCharacterLimit = () => {
     if (selectedPlatforms.length === 0) return 2200;
@@ -93,8 +110,10 @@ export default function PostComposer({ onPostCreate }: PostComposerProps) {
                 <div className="flex space-x-1">
                   {selectedPlatforms.map(pid => {
                     const platform = socialPlatforms.find(p => p.id === pid);
+                    const IconComponent = platform ? getIconComponent(platform.icon) : Instagram;
                     return platform ? (
                       <span key={pid} className={`text-xs px-2 py-1 rounded-full bg-gradient-to-r ${platform.color} text-white`}>
+                        <IconComponent className="w-3 h-3 inline mr-1" />
                         {platform.name}
                       </span>
                     ) : null;
