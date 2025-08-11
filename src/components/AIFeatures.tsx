@@ -11,23 +11,51 @@ export default function AIFeatures({ onCaptionGenerated, onHashtagsGenerated, se
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
   const [isGeneratingHashtags, setIsGeneratingHashtags] = useState(false);
   const [keywords, setKeywords] = useState('');
+  const [tone, setTone] = useState<'professional' | 'casual' | 'engaging'>('engaging');
+  const [language, setLanguage] = useState('en');
 
   const generateCaption = async () => {
     if (!keywords.trim()) return;
     
     setIsGeneratingCaption(true);
     
-    // Simulate AI generation delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const response = await fetch('/api/ai/generate-caption', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          keywords,
+          platforms: selectedPlatforms,
+          tone,
+          language,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onCaptionGenerated(data.caption);
+      } else {
+        // Fallback to sample captions
+        const sampleCaptions = [
+          `🚀 Exciting news! We're taking ${keywords} to the next level with innovative solutions that will transform the way you work. Stay tuned for amazing updates! #innovation #technology #growth`,
+          `✨ Discover the power of ${keywords}! Our latest breakthrough is here to revolutionize your experience. Join thousands who are already seeing incredible results! #breakthrough #success #future`,
+          `💡 Ready to unlock new possibilities with ${keywords}? We're passionate about creating solutions that make a real difference in your daily life. Let's build something amazing together! #passion #solutions #community`,
+        ];
+        const randomCaption = sampleCaptions[Math.floor(Math.random() * sampleCaptions.length)];
+        onCaptionGenerated(randomCaption);
+      }
+    } catch (error) {
+      console.error('Error generating caption:', error);
+      // Fallback to sample captions
+      const sampleCaptions = [
+        `🚀 Exciting news! We're taking ${keywords} to the next level with innovative solutions that will transform the way you work. Stay tuned for amazing updates! #innovation #technology #growth`,
+      ];
+      onCaptionGenerated(sampleCaptions[0]);
+    }
     
-    const sampleCaptions = [
-      `🚀 Exciting news! We're taking ${keywords} to the next level with innovative solutions that will transform the way you work. Stay tuned for amazing updates! #innovation #technology #growth`,
-      `✨ Discover the power of ${keywords}! Our latest breakthrough is here to revolutionize your experience. Join thousands who are already seeing incredible results! #breakthrough #success #future`,
-      `💡 Ready to unlock new possibilities with ${keywords}? We're passionate about creating solutions that make a real difference in your daily life. Let's build something amazing together! #passion #solutions #community`,
-    ];
-    
-    const randomCaption = sampleCaptions[Math.floor(Math.random() * sampleCaptions.length)];
-    onCaptionGenerated(randomCaption);
     setIsGeneratingCaption(false);
   };
 
@@ -36,21 +64,49 @@ export default function AIFeatures({ onCaptionGenerated, onHashtagsGenerated, se
     
     setIsGeneratingHashtags(true);
     
-    // Simulate AI generation delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const response = await fetch('/api/ai/generate-hashtags', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          keywords,
+          platforms: selectedPlatforms,
+          count: 8,
+          language,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onHashtagsGenerated(data.hashtags);
+      } else {
+        // Fallback to sample hashtags
+        const hashtags = [
+          `#${keywords.replace(/\s+/g, '')}`,
+          '#trending',
+          '#viral',
+          '#socialmedia',
+          '#content',
+          '#engagement',
+          '#digital',
+          '#marketing',
+        ];
+        onHashtagsGenerated(hashtags);
+      }
+    } catch (error) {
+      console.error('Error generating hashtags:', error);
+      // Fallback to sample hashtags
+      const hashtags = [
+        `#${keywords.replace(/\s+/g, '')}`,
+        '#trending',
+        '#viral',
+      ];
+      onHashtagsGenerated(hashtags);
+    }
     
-    const hashtags = [
-      `#${keywords.replace(/\s+/g, '')}`,
-      '#trending',
-      '#viral',
-      '#socialmedia',
-      '#content',
-      '#engagement',
-      '#digital',
-      '#marketing',
-    ];
-    
-    onHashtagsGenerated(hashtags);
     setIsGeneratingHashtags(false);
   };
 
@@ -79,6 +135,45 @@ export default function AIFeatures({ onCaptionGenerated, onHashtagsGenerated, se
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="e.g., product launch, team collaboration, industry insights"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="tone" className="block text-sm font-medium text-gray-700 mb-2">
+              Tone
+            </label>
+            <select
+              id="tone"
+              value={tone}
+              onChange={(e) => setTone(e.target.value as 'professional' | 'casual' | 'engaging')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="engaging">Engaging</option>
+              <option value="professional">Professional</option>
+              <option value="casual">Casual</option>
+            </select>
+          </div>
+          
+          <div>
+            <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-2">
+              Language
+            </label>
+            <select
+              id="language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="it">Italian</option>
+              <option value="pt">Portuguese</option>
+              <option value="zh">Chinese</option>
+              <option value="ja">Japanese</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex gap-3">
@@ -112,8 +207,8 @@ export default function AIFeatures({ onCaptionGenerated, onHashtagsGenerated, se
         </div>
 
         <div className="text-xs text-gray-500 bg-white p-3 rounded-lg border border-gray-200">
-          <p className="font-medium mb-1">🤖 AI Integration Placeholder</p>
-          <p>Future integration with OpenAI GPT-4 or Claude API for intelligent content generation based on your brand voice and trending topics.</p>
+          <p className="font-medium mb-1">🤖 DeepSeek AI Integration</p>
+          <p>Powered by DeepSeek AI for intelligent content generation based on your keywords, selected platforms, and preferred tone.</p>
         </div>
       </div>
     </div>
