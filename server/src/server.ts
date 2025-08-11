@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { connectDatabase } from './config/database';
 import { schedulerService } from './services/SchedulerService';
 import { browserAutomation } from './services/BrowserAutomation';
@@ -17,6 +18,19 @@ import dashboardRoutes from './routes/dashboard';
 
 // Load environment variables
 dotenv.config();
+
+// Create uploads directory if it doesn't exist
+import fs from 'fs';
+const uploadsDir = path.join(process.cwd(), 'uploads');
+const logsDir = path.join(process.cwd(), 'logs');
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;

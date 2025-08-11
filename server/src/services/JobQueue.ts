@@ -1,16 +1,30 @@
 import Bull from 'bull';
-import redis from '../config/redis';
 import { logger } from '../utils/logger';
 import { JobData, BrowserAutomationResult } from '../types';
 import { browserAutomation } from './BrowserAutomation';
 import { Post } from '../models/Post';
 import { AutomationSettings } from '../models/AutomationSettings';
 
-export const postQueue = new Bull('post publishing', {
-  redis: {
-    port: 6379,
+// Parse Redis URL for Bull queue
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+let redisConfig: any;
+
+if (redisUrl.startsWith('redis://')) {
+  const url = new URL(redisUrl);
+  redisConfig = {
+    host: url.hostname,
+    port: parseInt(url.port) || 6379,
+    password: url.password || undefined,
+  };
+} else {
+  redisConfig = {
     host: 'localhost',
-  },
+    port: 6379,
+  };
+}
+
+export const postQueue = new Bull('post publishing', {
+  redis: redisConfig,
 });
 
 postQueue.process('publishPost', async (job) => {

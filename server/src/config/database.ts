@@ -5,11 +5,7 @@ export const connectDatabase = async (): Promise<void> => {
   try {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/social-media-automation';
     
-    await mongoose.connect(mongoUri, {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
+    await mongoose.connect(mongoUri);
     
     logger.info('MongoDB connected successfully');
   } catch (error) {
