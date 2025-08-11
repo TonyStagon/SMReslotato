@@ -3,7 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { connectDatabase } from './config/database';
 import { schedulerService } from './services/SchedulerService';
 import { browserAutomation } from './services/BrowserAutomation';
@@ -15,6 +14,7 @@ import authRoutes from './routes/auth';
 import postRoutes from './routes/posts';
 import automationRoutes from './routes/automation';
 import dashboardRoutes from './routes/dashboard';
+import aiRoutes from './routes/ai';
 
 // Load environment variables
 dotenv.config();
@@ -69,6 +69,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/automation', automationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -86,38 +87,6 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
-
-// Graceful shutdown
-const gracefulShutdown = async (signal: string) => {
-  logger.info(`Received ${signal}. Starting graceful shutdown...`);
-  
-  try {
-    // Stop accepting new requests
-    server.close(() => {
-      logger.info('HTTP server closed');
-    });
-
-    // Stop scheduler
-    schedulerService.stop();
-
-    // Close browser instances
-    await browserAutomation.closeBrowsers();
-
-    // Close database connection
-    const mongoose = await import('mongoose');
-    await mongoose.connection.close();
-
-    logger.info('Graceful shutdown completed');
-    process.exit(0);
-  } catch (error) {
-    logger.error('Error during graceful shutdown:', error);
-    process.exit(1);
-  }
-};
-
-// Handle shutdown signals
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Start server
 const startServer = async () => {
@@ -145,6 +114,38 @@ const startServer = async () => {
       process.exit(1);
     });
 
+    // Graceful shutdown
+    const gracefulShutdown = async (signal: string) => {
+      logger.info(`Received ${signal}. Starting graceful shutdown...`);
+      
+      try {
+        // Stop accepting new requests
+        server.close(() => {
+          logger.info('HTTP server closed');
+        });
+
+        // Stop scheduler
+        schedulerService.stop();
+
+        // Close browser instances
+        await browserAutomation.closeBrowsers();
+
+        // Close database connection
+        const mongoose = await import('mongoose');
+        await mongoose.connection.close();
+
+        logger.info('Graceful shutdown completed');
+        process.exit(0);
+      } catch (error) {
+        logger.error('Error during graceful shutdown:', error);
+        process.exit(1);
+      }
+    };
+
+    // Handle shutdown signals
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
     return server;
   } catch (error) {
     logger.error('Failed to start server:', error);
@@ -152,6 +153,6 @@ const startServer = async () => {
   }
 };
 
-const server = startServer();
+startServer();
 
 export default app;
