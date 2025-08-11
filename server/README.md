@@ -15,7 +15,7 @@ A comprehensive Node.js backend for social media automation using Puppeteer and 
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 18+ 
 - MongoDB
 - Redis
 - Chrome/Chromium (for Puppeteer)
@@ -23,26 +23,22 @@ A comprehensive Node.js backend for social media automation using Puppeteer and 
 ## Installation
 
 1. Clone the repository and navigate to the server directory:
-
 ```bash
 cd server
 ```
 
 2. Install dependencies:
-
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
-
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
 4. Create required directories:
-
 ```bash
 mkdir -p logs uploads
 ```
@@ -63,13 +59,11 @@ BROWSER_HEADLESS=true
 ## Development
 
 Start the development server:
-
 ```bash
 npm run dev
 ```
 
 Build for production:
-
 ```bash
 npm run build
 npm start
@@ -78,12 +72,10 @@ npm start
 ## API Endpoints
 
 ### Authentication
-
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 
 ### Posts
-
 - `GET /api/posts` - Get user posts
 - `POST /api/posts` - Create new post
 - `PUT /api/posts/:id` - Update post
@@ -91,14 +83,12 @@ npm start
 - `GET /api/posts/:id/analytics` - Get post analytics
 
 ### Automation
-
 - `GET /api/automation/settings` - Get automation settings
 - `PUT /api/automation/settings` - Update automation settings
 - `GET /api/automation/queue/stats` - Get job queue statistics
 - `GET /api/automation/platforms` - Get supported platforms
 
 ### Dashboard
-
 - `GET /api/dashboard/stats` - Get dashboard statistics
 - `GET /api/dashboard/analytics/timeline` - Get analytics timeline
 - `GET /api/dashboard/analytics/platforms` - Get platform performance
@@ -106,14 +96,12 @@ npm start
 ## Architecture
 
 ### Browser Automation
-
 The system supports both Puppeteer and Playwright for browser automation:
 
 - **Puppeteer**: Chrome/Chromium-based automation
 - **Playwright**: Multi-browser support (Chrome, Firefox, Safari)
 
 ### Job Queue System
-
 Uses Bull with Redis for reliable job processing:
 
 - Automatic retries with exponential backoff
@@ -121,7 +109,6 @@ Uses Bull with Redis for reliable job processing:
 - Comprehensive error handling and logging
 
 ### Database Schema
-
 MongoDB with Mongoose ODM:
 
 - **Users**: Authentication and profile data
@@ -129,7 +116,6 @@ MongoDB with Mongoose ODM:
 - **AutomationSettings**: User-specific automation configuration
 
 ### Security Features
-
 - JWT authentication with secure token handling
 - Rate limiting on all API endpoints
 - Input validation and sanitization
