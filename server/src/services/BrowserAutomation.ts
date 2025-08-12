@@ -65,7 +65,7 @@ export class BrowserAutomationService {
 
   private async postToInstagramPuppeteer(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePuppeteer();
-    const page = await browser.newPage();
+    const page: PuppeteerPage = await browser.newPage();
 
     try {
       // Set user agent to mimic mobile device
@@ -85,8 +85,8 @@ export class BrowserAutomationService {
 
         // Fill login form
         await page.waitForSelector('input[name="username"]');
-        await page.type('input[name="username"]', process.env.IGusername || '');
-        await page.type('input[name="password"]', process.env.IGpassword || '');
+        await page.type('input[name="username"]', process.env.IG_USERNAME || '');
+        await page.type('input[name="password"]', process.env.IG_PASSWORD || '');
 
         // Submit login
         await page.click('button[type="submit"]');
@@ -121,7 +121,8 @@ export class BrowserAutomationService {
       const shareButton = await page.$('button:contains("Share")');
       if (shareButton) {
         await shareButton.click();
-        await page.waitForTimeout(3000);
+        // Use setTimeout for Puppeteer delay
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
 
       logger.info('Instagram post completed', { postId: jobData.postId });
@@ -147,7 +148,7 @@ export class BrowserAutomationService {
 
   private async postToInstagramPlaywright(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePlaywright();
-    const page = await browser.newPage();
+    const page: PlaywrightPage = await browser.newPage();
 
     try {
       // Set user agent to mimic mobile device
@@ -166,8 +167,8 @@ export class BrowserAutomationService {
         await page.waitForLoadState('networkidle');
 
         // Fill login form
-        await page.fill('input[name="username"]', process.env.IGusername || '');
-        await page.fill('input[name="password"]', process.env.IGpassword || '');
+        await page.fill('input[name="username"]', process.env.IG_USERNAME || '');
+        await page.fill('input[name="password"]', process.env.IG_PASSWORD || '');
 
         // Submit login
         await page.click('button[type="submit"]');
@@ -234,7 +235,7 @@ export class BrowserAutomationService {
 
   private async postToFacebookPuppeteer(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePuppeteer();
-    const page = await browser.newPage();
+    const page: PuppeteerPage = await browser.newPage();
 
     try {
       await page.goto('https://www.facebook.com', { waitUntil: 'networkidle2' });
@@ -243,8 +244,8 @@ export class BrowserAutomationService {
       const emailInput = await page.$('input[name="email"]');
       if (emailInput) {
         logger.info('Logging into Facebook');
-        await page.type('input[name="email"]', process.env.FBusername || '');
-        await page.type('input[name="pass"]', process.env.FBpassword || '');
+        await page.type('input[name="email"]', process.env.FB_USERNAME || '');
+        await page.type('input[name="pass"]', process.env.FB_PASSWORD || '');
         await page.click('button[name="login"]');
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
       }
@@ -255,8 +256,8 @@ export class BrowserAutomationService {
       await page.click('[role="textbox"]');
       await page.type('[role="textbox"]', jobData.caption);
 
-      // Simulate posting
-      await page.waitForTimeout(2000);
+      // Simulate posting with setTimeout for Puppeteer
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       return {
         success: true,
@@ -276,7 +277,7 @@ export class BrowserAutomationService {
 
   private async postToFacebookPlaywright(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePlaywright();
-    const page = await browser.newPage();
+    const page: PlaywrightPage = await browser.newPage();
 
     try {
       await page.goto('https://www.facebook.com', { waitUntil: 'networkidle' });
@@ -284,8 +285,8 @@ export class BrowserAutomationService {
       // Login if needed
       if (await page.locator('input[name="email"]').isVisible()) {
         logger.info('Logging into Facebook with Playwright');
-        await page.fill('input[name="email"]', process.env.FBusername || '');
-        await page.fill('input[name="pass"]', process.env.FBpassword || '');
+        await page.fill('input[name="email"]', process.env.FB_USERNAME || '');
+        await page.fill('input[name="pass"]', process.env.FB_PASSWORD || '');
         await page.click('button[name="login"]');
         await page.waitForLoadState('networkidle');
       }
@@ -295,7 +296,7 @@ export class BrowserAutomationService {
       await page.click('[role="textbox"]');
       await page.fill('[role="textbox"]', jobData.caption);
 
-      // Simulate posting
+      // Simulate posting with waitForTimeout for Playwright
       await page.waitForTimeout(2000);
 
       return {
@@ -336,7 +337,7 @@ export class BrowserAutomationService {
 
   private async postToTwitterPuppeteer(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePuppeteer();
-    const page = await browser.newPage();
+    const page: PuppeteerPage = await browser.newPage();
 
     try {
       await page.goto('https://twitter.com/login', { waitUntil: 'networkidle2' });
@@ -344,11 +345,11 @@ export class BrowserAutomationService {
       // Login
       logger.info('Logging into Twitter');
       await page.waitForSelector('input[name="text"]');
-      await page.type('input[name="text"]', process.env.Xusername || '');
+      await page.type('input[name="text"]', process.env.X_USERNAME || '');
       await page.click('span:contains("Next")');
       
       await page.waitForSelector('input[name="password"]');
-      await page.type('input[name="password"]', process.env.Xpassword || '');
+      await page.type('input[name="password"]', process.env.X_PASSWORD || '');
       await page.click('[data-testid="LoginForm_Login_Button"]');
       
       await page.waitForNavigation({ waitUntil: 'networkidle2' });
@@ -360,7 +361,7 @@ export class BrowserAutomationService {
       
       // Post tweet
       await page.click('[data-testid="tweetButtonInline"]');
-      await page.waitForTimeout(2000);
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       return {
         success: true,
@@ -380,17 +381,17 @@ export class BrowserAutomationService {
 
   private async postToTwitterPlaywright(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePlaywright();
-    const page = await browser.newPage();
+    const page: PlaywrightPage = await browser.newPage();
 
     try {
       await page.goto('https://twitter.com/login', { waitUntil: 'networkidle' });
 
       // Login
       logger.info('Logging into Twitter with Playwright');
-      await page.fill('input[name="text"]', process.env.Xusername || '');
+      await page.fill('input[name="text"]', process.env.X_USERNAME || '');
       await page.click('text=Next');
       
-      await page.fill('input[name="password"]', process.env.Xpassword || '');
+      await page.fill('input[name="password"]', process.env.X_PASSWORD || '');
       await page.click('[data-testid="LoginForm_Login_Button"]');
       
       await page.waitForLoadState('networkidle');
