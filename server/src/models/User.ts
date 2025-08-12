@@ -1,6 +1,23 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Types, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { User as IUser, SocialAccount } from '../types';
+import { SocialAccount } from '../types';
+
+// Define interface for User document methods
+interface IUserMethods {
+  comparePassword(candidatePassword: string): Promise<boolean>;
+  addSocialAccount(account: SocialAccount): void;
+}
+
+// Create User document interface by merging properties
+interface IUserDocument extends Document, IUserMethods {
+  _id: Types.ObjectId;
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  createdAt: Date;
+  socialAccounts: Types.Array<SocialAccount>;
+}
 
 const socialAccountSchema = new Schema<SocialAccount>({
   platform: { type: String, required: true },
@@ -14,7 +31,7 @@ const socialAccountSchema = new Schema<SocialAccount>({
   lastUsed: Date,
 });
 
-const userSchema = new Schema<IUser & Document>({
+const userSchema = new Schema<IUserDocument>({
   id: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -51,4 +68,4 @@ userSchema.methods.addSocialAccount = function (account: SocialAccount) {
   }
 };
 
-export const User = mongoose.model<IUser & Document>('User', userSchema);
+export const User = mongoose.model<IUserDocument>('User', userSchema);

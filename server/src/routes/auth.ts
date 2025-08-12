@@ -21,7 +21,7 @@ router.post('/register', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
-    // Create new user
+    // Create new user (password will be hashed by pre-save middleware)
     const user = new User({
       id: Date.now().toString(),
       email,
@@ -66,7 +66,7 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password
+    // Check password using the comparePassword method
     const isValidPassword = await user.comparePassword(password);
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });

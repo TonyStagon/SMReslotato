@@ -1,5 +1,21 @@
 import { logger } from '../utils/logger';
 
+export function isDeepSeekResponse(response: unknown): response is DeepSeekResponse {
+  if (typeof response !== 'object' || response === null) {
+    return false;
+  }
+
+  const r = response as Record<string, unknown>;
+  if (!('choices' in r) || !Array.isArray(r.choices)) {
+    return false;
+  }
+
+  const firstChoice = r.choices[0] as Record<string, unknown>;
+  return typeof firstChoice?.message === 'object' &&
+    firstChoice.message !== null &&
+    typeof (firstChoice.message as Record<string, unknown>)?.content === 'string';
+}
+
 export interface DeepSeekResponse {
   choices: Array<{
     message: {
@@ -78,8 +94,13 @@ Generate only the caption text, no additional formatting or explanations.`;
         throw new Error(`DeepSeek API error: ${response.status}`);
       }
 
-      const data: DeepSeekResponse = await response.json();
-      const caption = data.choices[0]?.message?.content?.trim();
+      const data = await response.json();
+      
+      if (!isDeepSeekResponse(data)) {
+        throw new Error('Invalid API response format');
+      }
+      
+      const caption = data.choices[0].message.content.trim();
 
       if (!caption) {
         throw new Error('No caption generated');
@@ -138,8 +159,13 @@ Return only the hashtags separated by spaces, no additional text.`;
         throw new Error(`DeepSeek API error: ${response.status}`);
       }
 
-      const data: DeepSeekResponse = await response.json();
-      const hashtagText = data.choices[0]?.message?.content?.trim();
+      const data = await response.json();
+      
+      if (!isDeepSeekResponse(data)) {
+        throw new Error('Invalid API response format');
+      }
+      
+      const hashtagText = data.choices[0].message.content.trim();
 
       if (!hashtagText) {
         throw new Error('No hashtags generated');
@@ -205,8 +231,13 @@ Return only the improved caption, no additional text.`;
         throw new Error(`DeepSeek API error: ${response.status}`);
       }
 
-      const data: DeepSeekResponse = await response.json();
-      const improvedCaption = data.choices[0]?.message?.content?.trim();
+      const data = await response.json();
+      
+      if (!isDeepSeekResponse(data)) {
+        throw new Error('Invalid API response format');
+      }
+      
+      const improvedCaption = data.choices[0].message.content.trim();
 
       if (!improvedCaption) {
         throw new Error('No improved caption generated');
@@ -258,8 +289,13 @@ Return only the translated caption, no additional text.`;
         throw new Error(`DeepSeek API error: ${response.status}`);
       }
 
-      const data: DeepSeekResponse = await response.json();
-      const translatedCaption = data.choices[0]?.message?.content?.trim();
+      const data = await response.json();
+      
+      if (!isDeepSeekResponse(data)) {
+        throw new Error('Invalid API response format');
+      }
+            
+      const translatedCaption = data.choices[0].message.content.trim();
 
       if (!translatedCaption) {
         throw new Error('No translation generated');

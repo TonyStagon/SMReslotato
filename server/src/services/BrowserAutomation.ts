@@ -148,17 +148,18 @@ export class BrowserAutomationService {
 
   private async postToInstagramPlaywright(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePlaywright();
-    const page: PlaywrightPage = await browser.newPage();
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1',
+      viewport: { width: 375, height: 812 },
+    });
+    const page: PlaywrightPage = await context.newPage();
 
     try {
-      // Set user agent to mimic mobile device
-      await page.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1');
-      
       // Navigate to Instagram
       await page.goto('https://www.instagram.com', { waitUntil: 'networkidle' });
 
       // Check if login is needed
-      const loginButton = await page.locator('a[href="/accounts/login/"]').first();
+      const loginButton = page.locator('a[href="/accounts/login/"]').first();
       if (await loginButton.isVisible()) {
         logger.info('Logging into Instagram with Playwright');
         
@@ -210,6 +211,7 @@ export class BrowserAutomationService {
       throw error;
     } finally {
       await page.close();
+      await context.close();
     }
   }
 
@@ -277,7 +279,8 @@ export class BrowserAutomationService {
 
   private async postToFacebookPlaywright(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePlaywright();
-    const page: PlaywrightPage = await browser.newPage();
+    const context = await browser.newContext();
+    const page: PlaywrightPage = await context.newPage();
 
     try {
       await page.goto('https://www.facebook.com', { waitUntil: 'networkidle' });
@@ -312,6 +315,7 @@ export class BrowserAutomationService {
       };
     } finally {
       await page.close();
+      await context.close();
     }
   }
 
@@ -381,7 +385,8 @@ export class BrowserAutomationService {
 
   private async postToTwitterPlaywright(jobData: JobData): Promise<BrowserAutomationResult> {
     const browser = await this.initializePlaywright();
-    const page: PlaywrightPage = await browser.newPage();
+    const context = await browser.newContext();
+    const page: PlaywrightPage = await context.newPage();
 
     try {
       await page.goto('https://twitter.com/login', { waitUntil: 'networkidle' });
@@ -415,6 +420,7 @@ export class BrowserAutomationService {
       };
     } finally {
       await page.close();
+      await context.close();
     }
   }
 
