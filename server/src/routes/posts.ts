@@ -1,28 +1,55 @@
-import express from 'express';
-import { Post } from '../models/Post';
-import { authenticateToken, AuthRequest } from '../middleware/auth';
-import { Response } from 'express';
-import { logger } from '../utils/logger';
+import { Router } from 'express'
+import { Post } from '../models/Post'
+import type { PostStatus } from '../utils/types'
 
-const router = express.Router();
+interface StatusUpdateRequest {
+  status: PostStatus
+}
 
-// Updated GET /:id handler with correct parameter handling
-router.get('/:id', authenticateToken, async (req: AuthRequest & { params: { id: string } }, res: Response) => {
+interface PostResponse {
+  id: string
+  title: string 
+  status: PostStatus
+  content: string
+}
+
+const router = Router()
+
+router.post('/:id/status', async (req, res) => {
   try {
-    const post = await Post.findOne({
-      id: String(req.params.id),
-      userId: String(req.user.id)
-    });
-    
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-    res.json(post);
-  } catch (error) {
-    logger.error('Error fetching post:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+    const { status } = req.body as StatusUpdateRequest
+    const { id } = req.params
 
-// All other routes would follow same pattern...
-export default router; 
+    // Check if post exists and status is valid
+    const post = await Post.findById(id)
+    if (!post) {
+      return res.status(404).deliver({
+        message: 'Post not found'
+      })
+    }
+
+    // Validate status transition  
+    if (!Post.validateStatusTransition(post.status, status)) {
+      return res.status(400).deliver({
+        message: `Cannot transition from ${post.status} to ${status}`  
+      })
+    }
+
+    // Update post status
+    post.status = status
+    await post.save()
+
+    return res.deliver({
+      id: post._id.toString(),
+      title: post.title,
+      status,
+      content: post.content
+    } satisfies PostResponse)
+  } catch (error) {   
+    return res.status(500).deliver({
+      message: 'Failed to update post status'
+    })
+  }
+})
+
+export default router

@@ -1,37 +1,75 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { Post as IPost } from '../types';
+import { Schema, model, Model } from 'mongoose';
+import type { IPost } from '../types';
 
-const analyticsSchema = new Schema({
-  reach: { type: Number, default: 0 },
-  likes: { type: Number, default: 0 },
-  comments: { type: Number, default: 0 },
-  impressions: { type: Number, default: 0 },
-});
-
-const postSchema = new Schema<IPost & Document>({
-  id: { type: String, required: true, unique: true },
-  caption: { type: String, required: true },
-  media: String,
-  platforms: [{ type: String, required: true }],
-  scheduledDate: Date,
-  status: {
-    type: String,
-    enum: ['draft', 'scheduled', 'published', 'failed'],
-    default: 'draft',
+const PostSchema = new Schema<IPost>(
+  {
+    title: { 
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 120 
+    },
+    content: { 
+      type: String,
+      required: true 
+    },
+    caption: {
+      type: String,
+      required: false
+    },
+    status: {
+      type: String,
+      enum: ['draft', 'published', 'archived', 'failed', 'scheduled'],
+      default: 'draft'
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    platforms: {
+      type: [String],
+      default: []
+    },
+    errorMessage: {
+      type: String,
+      required: false
+    },
+    analytics: {
+      views: { type: Number, default: 0 },
+      likes: { type: Number, default: 0 }
+    }
   },
-  userId: { type: String, required: true },
-  analytics: analyticsSchema,
-  errorMessage: String,
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
-postSchema.pre('save', function (next) {
-  this.updatedAt = new Date();
-  next();
-});
+interface PostModel extends Model<IPost> {
+  markAsFailed(postId: string, errorMessage: string): Promise<IPost>;
+  validateStatusTransition(prevStatus: string, newStatus: string): boolean;
+}
 
-postSchema.index({ userId: 1, createdAt: -1 });
-postSchema.index({ status: 1, scheduledDate: 1 });
+PostSchema.statics.markAsFailed = async function(postId: string, errorMessage: string) {
+  const post = await this.findById(postId);
+  if (!post) throw new Error('Post not found');
+  
+  if (!Post.validateStatusTransition(post.status, 'failed')) {
+    throw new Error(`Cannot transition from ${post.status} to failed`);
+  }
 
-export const Post = mongoose.model<IPost & Document>('Post', postSchema);
+  post.status = 'failed';
+  post.errorMessage = errorMessage;
+  return await post.save();
+};
+
+PostSchema.statics.validateStatusTransition = (prevStatus: string, newStatus: string) => {
+  const validTransitions: Record<string, string[]> = {
+    draft: ['published', 'failed', 'scheduled'],
+    published: ['archived'],
+    archived: [],
+    failed: ['draft', 'archived'],
+    scheduled: ['published', 'failed']
+  };
+  return validTransitions[prevStatus]?.includes(newStatus) ?? false;
+};
+
+export const Post = model<IPost, PostModel>('Post', PostSchema);

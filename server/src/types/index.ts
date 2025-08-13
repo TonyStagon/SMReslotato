@@ -1,83 +1,69 @@
-export interface SocialPlatform {
-  id: string;
-  name: string;
-  icon: string;
-  color: string;
-  maxChars: number;
-  supportsHashtags: boolean;
-  supportsMedia: boolean;
+import { Request, Response } from 'express';
+import { Document, ObjectId } from 'mongoose';
+
+interface BaseReqParams {
+  id?: string;
+  [key: string]: string | undefined;
 }
 
-export interface Post {
-  _id?: string;
-  id: string;
-  caption: string;
-  media?: string;
-  platforms: string[];
-  scheduledDate?: Date;
-  status: 'draft' | 'scheduled' | 'published' | 'failed';
-  createdAt: Date;
-  updatedAt?: Date;
-  userId: string;
+interface BaseReqQueries {
+  [key: string]: string | string[] | undefined;
+}
+
+export interface JwtPayload {
+  userId: ObjectId;
+  email: string;
+}
+
+export interface AppResponse<T = unknown> extends Response {
+  deliver(data?: T): Promise<this>;
+}
+
+export interface AuthRequest<
+  P extends object = object, 
+  Q extends object = object, 
+  B extends object = object
+> extends Request {
+  auth: JwtPayload;
+  params: P & BaseReqParams;
+  query: Q & BaseReqQueries;
+  body: B;
+}
+
+// Post Model Interface
+export interface IPost {
+  _id: ObjectId;
+  title: string;
+  content: string;
+  caption?: string;
+  status: 'draft' | 'published' | 'scheduled' | 'failed';
   analytics?: {
     reach: number;
     likes: number;
     comments: number;
     impressions: number;
   };
+  platforms: string[];
+  createdAt: Date;
+  updatedAt: Date;
   errorMessage?: string;
 }
 
-export interface User {
-  _id?: string;
+export type PostDocument = IPost & Document;
+
+// Route-specific interfaces
+export interface PostParams {
   id: string;
-  email: string;
-  password: string;
-  name: string;
-  createdAt: Date;
-  socialAccounts: SocialAccount[];
 }
 
-export interface SocialAccount {
-  platform: string;
-  username: string;
-  isConnected: boolean;
-  credentials?: {
-    accessToken?: string;
-    refreshToken?: string;
-    expiresAt?: Date;
-  };
-  lastUsed?: Date;
+export interface PostListQuery {
+  status?: 'draft' | 'published';
+  limit?: string;
+  offset?: string;
 }
 
-export interface AutomationSettings {
-  userId: string;
-  isEnabled: boolean;
-  browserType: 'puppeteer' | 'playwright';
-  headlessMode: boolean;
-  retryAttempts: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface JobData {
-  postId: string;
-  userId: string;
-  platforms: string[];
-  caption: string;
-  media?: string;
-  retryCount?: number;
-}
-
-export interface BrowserAutomationResult {
-  success: boolean;
-  platform: string;
-  message: string;
-  analytics?: {
-    reach: number;
-    likes: number;
-    comments: number;
-    impressions: number;
-  };
-  error?: string;
+// Automation Settings
+export interface IAutomationSettings {
+  enabled: boolean;
+  startTime: Date;
 }
