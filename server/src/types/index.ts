@@ -30,20 +30,66 @@ export interface AuthRequest<
   body: B;
 }
 
-// Post Model Interface
-export interface IPost {
-  _id: ObjectId;
-  title: string;
-  content: string;
-  caption?: string;
-  status: 'draft' | 'published' | 'scheduled' | 'failed';
+export interface JobData {
+  postId: string;
+  userId: string;
+  platforms: string[];
+  caption: string;
+  media?: string[];
+}
+
+export interface BrowserAutomationResult {
+  success: boolean;
+  platform: string;
+  message: string;
+  error?: string;
   analytics?: {
     reach: number;
     likes: number;
     comments: number;
     impressions: number;
   };
+}
+
+export interface SocialAccount {
+  platform: string;
+  username: string;
+  isConnected: boolean;
+  credentials?: {
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: Date;
+  };
+  lastUsed?: Date;
+}
+
+export interface AutomationSettings {
+  userId: string;
+  isEnabled: boolean;
+  browserType: 'puppeteer' | 'playwright';
+  headlessMode: boolean;
+  retryAttempts: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Post Model Interface
+export interface IPost {
+  _id: ObjectId;
+  title: string;
+  content: string;
+  caption?: string;
+  media?: string[];
+  status: 'draft' | 'published' | 'scheduled' | 'failed' | 'archived';
+  userId: ObjectId;
   platforms: string[];
+  scheduledDate?: Date;
+  analytics?: {
+    reach: number;
+    likes: number;
+    comments: number;
+    impressions: number;
+  };
   createdAt: Date;
   updatedAt: Date;
   errorMessage?: string;

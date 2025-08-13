@@ -7,6 +7,7 @@ import { connectDatabase } from './config/database';
 import { schedulerService } from './services/SchedulerService';
 import { browserAutomation } from './services/BrowserAutomation';
 import { apiLimiter } from './middleware/rateLimiter';
+import { responseHelpers } from './middleware/responseHelpers';
 import { logger } from './utils/logger';
 
 // Import routes
@@ -50,6 +51,9 @@ app.use('/api/', apiLimiter);
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Response helpers middleware
+app.use(responseHelpers);
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

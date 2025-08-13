@@ -1,6 +1,5 @@
 import cron from 'node-cron';
 import { Post } from '../models/Post';
-import { IPost } from '../types/models';
 import { addPostToQueue } from './JobQueue';
 import { logger } from '../utils/logger';
 
@@ -41,15 +40,13 @@ export class SchedulerService {
 
       for (const post of duePosts) {
         try {
-          // Add type assertion for accessing document properties
-          const postObj = post as unknown as IPost;
           // Add to job queue for processing
           await addPostToQueue({
-            postId: postObj._id.toString(),
-            userId: postObj.userId.toString(),
-            platforms: postObj.platforms || [],
-            caption: postObj.caption || '',
-            media: postObj.media || [],
+            postId: post._id.toString(),
+            userId: post.userId.toString(),
+            platforms: post.platforms || [],
+            caption: post.caption || '',
+            media: post.media || [],
           });
 
           logger.info('Added scheduled post to queue', { postId: post.id });

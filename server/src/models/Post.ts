@@ -5,21 +5,29 @@ const PostSchema = new Schema<IPost>(
   {
     title: { 
       type: String,
-      required: true,
+      required: false,
       trim: true,
       maxlength: 120 
     },
     content: { 
       type: String,
-      required: true 
+      required: false 
     },
     caption: {
       type: String,
+      required: true
+    },
+    media: {
+      type: [String],
+      default: []
+    },
+    scheduledDate: {
+      type: Date,
       required: false
     },
     status: {
       type: String,
-      enum: ['draft', 'published', 'archived', 'failed', 'scheduled'],
+      enum: ['draft', 'published', 'scheduled', 'failed', 'archived'],
       default: 'draft'
     },
     userId: {
@@ -37,7 +45,10 @@ const PostSchema = new Schema<IPost>(
     },
     analytics: {
       views: { type: Number, default: 0 },
-      likes: { type: Number, default: 0 }
+      likes: { type: Number, default: 0 },
+      reach: { type: Number, default: 0 },
+      comments: { type: Number, default: 0 },
+      impressions: { type: Number, default: 0 }
     }
   },
   { timestamps: true }
@@ -63,11 +74,11 @@ PostSchema.statics.markAsFailed = async function(postId: string, errorMessage: s
 
 PostSchema.statics.validateStatusTransition = (prevStatus: string, newStatus: string) => {
   const validTransitions: Record<string, string[]> = {
-    draft: ['published', 'failed', 'scheduled'],
+    draft: ['published', 'failed', 'scheduled', 'archived'],
     published: ['archived'],
-    archived: [],
-    failed: ['draft', 'archived'],
-    scheduled: ['published', 'failed']
+    archived: ['draft'],
+    failed: ['draft', 'archived', 'scheduled'],
+    scheduled: ['published', 'failed', 'archived']
   };
   return validTransitions[prevStatus]?.includes(newStatus) ?? false;
 };
