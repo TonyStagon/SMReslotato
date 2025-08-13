@@ -32,8 +32,10 @@ export class DeepSeekService {
     this.apiKey = process.env.DEEPSEEK_API_KEY || '';
     this.apiUrl = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/v1';
     
-    if (!this.apiKey) {
-      logger.warn('DeepSeek API key not configured');
+    if (!this.apiKey || this.apiKey.trim() === '') {
+      logger.warn('DeepSeek API key not configured - AI features will be disabled');
+    } else {
+      logger.info('DeepSeek API service initialized successfully');
     }
   }
 
@@ -43,7 +45,7 @@ export class DeepSeekService {
     tone: 'professional' | 'casual' | 'engaging' = 'engaging',
     language: string = 'en'
   ): Promise<string> {
-    if (!this.apiKey) {
+    if (!this.apiKey || this.apiKey.trim() === '') {
       throw new Error('DeepSeek API key not configured');
     }
 
@@ -120,7 +122,7 @@ Generate only the caption text, no additional formatting or explanations.`;
     count: number = 10,
     language: string = 'en'
   ): Promise<string[]> {
-    if (!this.apiKey) {
+    if (!this.apiKey || this.apiKey.trim() === '') {
       throw new Error('DeepSeek API key not configured');
     }
 
@@ -189,7 +191,7 @@ Return only the hashtags separated by spaces, no additional text.`;
     platforms: string[],
     language: string = 'en'
   ): Promise<string> {
-    if (!this.apiKey) {
+    if (!this.apiKey || this.apiKey.trim() === '') {
       throw new Error('DeepSeek API key not configured');
     }
 
@@ -255,7 +257,7 @@ Return only the improved caption, no additional text.`;
     caption: string,
     targetLanguage: string
   ): Promise<string> {
-    if (!this.apiKey) {
+    if (!this.apiKey || this.apiKey.trim() === '') {
       throw new Error('DeepSeek API key not configured');
     }
 
