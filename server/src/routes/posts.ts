@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import express from 'express'
 import { Post } from '../models/Post'
 import { authenticateToken, AuthRequest } from '../middleware/auth'
 
@@ -15,7 +15,7 @@ interface PostResponse {
   content: string
 }
 
-const router = Router()
+const router = express.Router()
 
 router.post('/:id/status', authenticateToken, async (req: AuthRequest, res) => {
   try {
