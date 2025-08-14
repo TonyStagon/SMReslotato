@@ -13,9 +13,6 @@ import { logger } from './utils/logger';
 // Import routes
 import authRoutes from './routes/auth';
 import postRoutes from './routes/posts';
-import automationRoutes from './routes/automation';
-import dashboardRoutes from './routes/dashboard';
-import aiRoutes from './routes/ai';
 
 // Load environment variables
 dotenv.config();
@@ -69,11 +66,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
-app.use('/api/automation', automationRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
